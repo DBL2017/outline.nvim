@@ -198,7 +198,8 @@
 ---@field live? boolean
 
 ---@class outline.SetupOpts.OutlineWindow
----@field position? 'right'|'left'
+---@field position? 'right'|'left'|'float'
+---@field float? { border?: 'single'|'bold'|'double'|'none'|'rounded'|'shadow'|'solid', position?: 'left'|'center'|'right' }
 ---@field width? number
 ---@field relative_width? boolean
 ---@field split_command? nil|string

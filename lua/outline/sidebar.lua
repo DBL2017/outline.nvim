@@ -723,7 +723,7 @@ function Sidebar:update_width()
   -- Only resize if change is significant (avoid constant small adjustments, have padding for that)
   local current_width = vim.api.nvim_win_get_width(self.view.win)
   if math.abs(new_width - current_width) > 1 then
-    vim.api.nvim_win_set_width(self.view.win, new_width)
+    self.view:update_width(new_width)
   end
 end
 
@@ -949,6 +949,7 @@ function Sidebar:build_outline(find_node)
   --   like below)
   self.view:clear_all_ns()
   self.view:rewrite_lines(lines)
+  self.view:update_height()
   self.view:add_hl_and_ns(hl, self.flats, details, linenos)
 
   return put_cursor

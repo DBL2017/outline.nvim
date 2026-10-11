@@ -175,8 +175,13 @@ Pass a table to the setup call with your configuration options.
 ```lua
 {
   outline_window = {
-    -- Where to open the split window: right/left
+    -- Where to open the window: right/left/float
     position = 'right',
+    -- Floating outline window settings, used when position = 'float'.
+    float = {
+      border = 'rounded',
+      position = 'right', -- left/center/right
+    },
     -- The default split commands used are 'topleft vs' and 'botright vs'
     -- depending on `position`. You can change this by providing your own
     -- `split_command`.

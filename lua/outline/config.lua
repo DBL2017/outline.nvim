@@ -35,6 +35,10 @@ M.defaults = {
   },
   outline_window = {
     position = 'right',
+    float = {
+      border = 'rounded',
+      position = 'right',
+    },
     split_command = nil,
     width = 25,
     auto_width = {

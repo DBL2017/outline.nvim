@@ -5,6 +5,11 @@ local utils = require('outline.utils')
 ---@class outline.View
 local View = {}
 
+local function get_ui_size()
+  local ui = vim.api.nvim_list_uis()[1]
+  return ui or { height = vim.o.lines - vim.o.cmdheight, width = vim.o.columns }
+end
+
 ---@class outline.View
 ---@field buf integer
 ---@field win integer
@@ -28,15 +33,47 @@ function View:setup_view(split_command)
   utils.buf_set_option(self.buf, 'buftype', 'nofile')
   utils.buf_set_option(self.buf, 'modifiable', false)
 
-  -- create a split
-  vim.cmd(split_command)
+  if cfg.o.outline_window.position == 'float' then
+    local ui = get_ui_size()
+    local float = cfg.o.outline_window.float
+    local height = 1
+    local width = math.max(1, math.min(cfg.o.outline_window.width, ui.width))
+    local col
+    if float.position == 'left' then
+      col = 0
+    elseif float.position == 'center' then
+      col = math.floor((ui.width - width) / 2)
+    else
+      col = ui.width - width
+    end
 
-  -- get current (outline) window and attach our buffer to it
-  self.win = vim.api.nvim_get_current_win()
+    local win_opts = {
+      relative = 'editor',
+      width = width,
+      height = height,
+      row = 0,
+      col = math.max(0, math.min(col, ui.width - width)),
+      border = float.border,
+      style = 'minimal',
+    }
+    if _G._outline_nvim_has[9] then
+      win_opts.title = 'Outline'
+      win_opts.title_pos = 'center'
+    end
+    self.win = vim.api.nvim_open_win(self.buf, true, win_opts)
+  else
+    -- create a split
+    vim.cmd(split_command)
+
+    -- get current (outline) window and attach our buffer to it
+    self.win = vim.api.nvim_get_current_win()
+  end
+
+  -- attach our buffer to the window
   vim.api.nvim_win_set_buf(self.win, self.buf)
 
   -- resize if split_command not specify width like "25vsplit"
-  if split_command:match('%d+') == nil then
+  if cfg.o.outline_window.position ~= 'float' and split_command:match('%d+') == nil then
     -- resize to a % of the current window size
     vim.cmd('vertical resize ' .. cfg.o.outline_window.width)
   end
@@ -81,6 +118,45 @@ function View:setup_view(split_command)
   if cl == true or cl == 'focus_in_outline' then
     utils.win_set_option(self.win, 'cursorline', true)
   end
+end
+
+---Set the width of the outline window, keeping a floating window positioned.
+---@param width integer
+function View:update_width(width)
+  if not self:is_open() then
+    return
+  end
+
+  local ui = get_ui_size()
+  width = math.max(1, math.min(width, ui.width))
+  vim.api.nvim_win_set_width(self.win, width)
+
+  if cfg.o.outline_window.position == 'float' then
+    local float = cfg.o.outline_window.float
+    local col
+    if float.position == 'left' then
+      col = 0
+    elseif float.position == 'center' then
+      col = math.floor((ui.width - width) / 2)
+    else
+      col = ui.width - width
+    end
+    local win_config = vim.api.nvim_win_get_config(self.win)
+    win_config.col = math.max(0, math.min(col, ui.width - width))
+    win_config.width = width
+    vim.api.nvim_win_set_config(self.win, win_config)
+  end
+end
+
+---Resize a floating outline window to fit its current contents.
+function View:update_height()
+  if not self:is_open() or cfg.o.outline_window.position ~= 'float' or not self.buf then
+    return
+  end
+
+  local ui = get_ui_size()
+  local height = math.min(vim.api.nvim_buf_line_count(self.buf), ui.height - 1)
+  vim.api.nvim_win_set_height(self.win, math.max(1, height))
 end
 
 ---Close view window and remove winnr/bufnr fields
