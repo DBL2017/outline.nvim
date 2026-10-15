@@ -180,6 +180,8 @@ Pass a table to the setup call with your configuration options.
     -- Floating outline window settings, used when position = 'float'.
     float = {
       border = 'rounded',
+      -- Title displayed on the floating outline window
+      title = 'Outline',
       position = 'right', -- left/center/right
     },
     -- The default split commands used are 'topleft vs' and 'botright vs'

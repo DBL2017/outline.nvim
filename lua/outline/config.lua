@@ -38,6 +38,7 @@ M.defaults = {
     float = {
       border = 'rounded',
       position = 'right',
+      title = 'Outline',
     },
     split_command = nil,
     width = 25,

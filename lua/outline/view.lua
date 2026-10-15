@@ -57,7 +57,7 @@ function View:setup_view(split_command)
       style = 'minimal',
     }
     if _G._outline_nvim_has[9] then
-      win_opts.title = 'Outline'
+      win_opts.title = float.title
       win_opts.title_pos = 'center'
     end
     self.win = vim.api.nvim_open_win(self.buf, true, win_opts)
